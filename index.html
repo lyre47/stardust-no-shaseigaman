@@ -3,493 +3,752 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星尘的射精管理游戏♡</title>
+    <title>星尘的射精管理训练♡</title>
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Comic Sans MS', cursive;
-            color: white;
-            overflow: hidden;
-            position: relative;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .floating-text {
-            position: absolute;
-            animation: float 15s linear infinite;
-            font-size: 14px;
-            opacity: 0.3;
-            white-space: nowrap;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes float {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(100vw); }
+        .scrolling-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            animation: scrollText 20s linear infinite;
+            font-size: 20px;
+            line-height: 1.5;
+            color: #fff;
+            pointer-events: none;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+        @keyframes scrollText {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: rgba(0,0,0,0.5);
-            padding: 30px;
-            border-radius: 20px;
+            padding: 20px;
             position: relative;
             z-index: 10;
         }
 
-        .difficulty-selector {
+        .title {
             text-align: center;
+            color: white;
+            font-size: 36px;
             margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .difficulty-screen, .game-screen, .result-screen {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .difficulty-btn {
-            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
             border: none;
-            color: white;
-            padding: 15px 30px;
-            margin: 10px;
-            border-radius: 25px;
-            cursor: pointer;
+            border-radius: 10px;
             font-size: 18px;
+            cursor: pointer;
             transition: all 0.3s;
+            color: white;
+            font-weight: bold;
         }
+
+        .easy { background: linear-gradient(135deg, #84fab0, #8fd3f4); }
+        .normal { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .hard { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .extreme { background: linear-gradient(135deg, #30cfd0, #330867); }
 
         .difficulty-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 20px rgba(255,255,255,0.5);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
-        #gameArea {
-            display: none;
-            text-align: center;
-        }
-
-        #strokeIndicator {
-            font-size: 72px;
-            font-weight: bold;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(255,255,255,0.8);
-        }
-
-        #rhythmText {
+        .timer {
             font-size: 48px;
-            color: #ff69b4;
-            animation: pulse 0.5s infinite;
+            text-align: center;
+            margin: 20px 0;
+            color: #333;
         }
 
-        #teasingText {
+        .countdown-label {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .speed-indicator {
+            text-align: center;
             font-size: 24px;
-            color: #ffd700;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .rhythm-display {
+            text-align: center;
+            font-size: 48px;
+            margin: 20px 0;
+            height: 80px;
+            color: #e91e63;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rhythm-text {
+            transition: transform 0.1s ease-in-out;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .taunt-message {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
             margin: 20px 0;
             min-height: 60px;
+            padding: 15px;
+            background: rgba(255,192,203,0.2);
+            border-radius: 10px;
+            font-style: italic;
         }
 
-        #timer {
-            font-size: 36px;
-            margin: 20px 0;
+        .control-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
         }
 
         .surrender-btn {
-            background: linear-gradient(45deg, #8b008b, #ff1493);
-            border: none;
+            background: #ffc107;
+            color: #333;
+        }
+
+        .fail-btn {
+            background: #f44336;
             color: white;
-            padding: 20px 40px;
-            margin: 10px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 20px;
-            transition: all 0.3s;
         }
 
-        .surrender-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 30px rgba(255,20,147,0.8);
-        }
-
-        #punishmentArea {
-            display: none;
-            background: rgba(139,0,139,0.8);
-            padding: 30px;
-            border-radius: 20px;
+        .punishment-display {
             margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,0,0,0.1);
+            border-radius: 10px;
+            border: 2px solid #f44336;
         }
 
-        #punishmentText {
-            font-size: 24px;
-            color: #ffd700;
-            margin: 20px 0;
+        .hidden {
+            display: none;
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="text-align: center; color: #ff69b4;">♡ 星尘的射精管理训练 ♡</h1>
+    <div class="scrolling-bg" id="scrollingBg"></div>
 
-        <div class="difficulty-selector" id="difficultySelector">
-            <h2>选择你的难度，小睿~</h2>
-            <button class="difficulty-btn" onclick="startGame('easy')">简单模式 - 温柔的折磨</button>
-            <button class="difficulty-btn" onclick="startGame('medium')">普通模式 - 适度的煎熬</button>
-            <button class="difficulty-btn" onclick="startGame('hard')">困难模式 - 极限的考验</button>
-            <button class="difficulty-btn" style="background: linear-gradient(45deg, #000, #8b008b);"
-                    onclick="startGame('impossible')">地狱模式 - 绝对无法通关</button>
+    <div class="container">
+        <h1 class="title">✨ 星尘的射精管理训练 ✨</h1>
+
+        <div class="difficulty-screen" id="difficultyScreen">
+            <h2 style="text-align: center; margin-bottom: 20px;">选择你的折磨程度♡</h2>
+            <button class="difficulty-btn easy" onclick="startGame('easy')">
+                🌸 温柔模式 - 初次体验寸止的你
+            </button>
+            <button class="difficulty-btn normal" onclick="startGame('normal')">
+                💕 标准模式 - 想要更多刺激的你
+            </button>
+            <button class="difficulty-btn hard" onclick="startGame('hard')">
+                🔥 困难模式 - 追求极限快感的你
+            </button>
+            <button class="difficulty-btn extreme" onclick="startGame('extreme')">
+                ⚡ 地狱模式 - 绝对无法通关的终极挑战
+            </button>
         </div>
 
-        <div id="gameArea">
-            <div id="timer">剩余时间: <span id="timeLeft">--</span>秒</div>
-            <div id="strokeIndicator">--</div>
-            <div id="rhythmText">准备开始...</div>
-            <div id="teasingText"></div>
-            <div style="margin-top: 30px;">
-                <button class="surrender-btn" onclick="surrender()">我要投降了...快忍不住了...</button>
-                <button class="surrender-btn" style="background: linear-gradient(45deg, #8b0000, #dc143c);"
-                        onclick="failed()">啊...已经射了...</button>
+        <div class="game-screen hidden" id="gameScreen">
+            <div class="countdown-label">距离胜利还有</div>
+            <div class="timer" id="timer">00:00</div>
+            <div class="speed-indicator" id="speedIndicator">准备开始...</div>
+            <div class="rhythm-display" id="rhythmDisplay">
+                <span class="rhythm-text" id="rhythmText"></span>
+            </div>
+            <div class="taunt-message" id="tauntMessage">准备好了吗？马上就要开始了哦♡</div>
+
+            <div class="control-buttons">
+                <button class="control-btn surrender-btn" onclick="surrender()">
+                    我要忍不住了...投降
+                </button>
+                <button class="control-btn fail-btn" onclick="failed()">
+                    啊...射了...
+                </button>
             </div>
         </div>
 
-        <div id="punishmentArea">
-            <h2 style="color: #ff69b4;">惩罚时间~</h2>
-            <div id="punishmentText"></div>
-            <button class="surrender-btn" onclick="location.reload()">重新开始</button>
+        <div class="result-screen hidden" id="resultScreen">
+            <h2 id="resultTitle"></h2>
+            <div class="punishment-display" id="punishmentDisplay"></div>
+            <button class="difficulty-btn normal" onclick="location.reload()" style="margin-top: 20px;">
+                再来一次
+            </button>
         </div>
     </div>
 
     <script>
-        const teasingTexts = {
+        // 游戏配置
+        const gameConfig = {
+            easy: {
+                duration: [180, 240], // 3-4分钟
+                segments: [3, 4],
+                speeds: {
+                    stop: 0,
+                    slow: [8, 12],
+                    medium: [15, 20],
+                    fast: [25, 30],
+                    extreme: [35, 40]
+                }
+            },
+            normal: {
+                duration: [300, 420], // 5-7分钟
+                segments: [4, 6],
+                speeds: {
+                    stop: 0,
+                    slow: [5, 8],
+                    medium: [12, 18],
+                    fast: [22, 28],
+                    extreme: [32, 38]
+                }
+            },
+            hard: {
+                duration: [480, 600], // 8-10分钟
+                segments: [6, 8],
+                speeds: {
+                    stop: 0,
+                    slow: [3, 5],
+                    medium: [10, 15],
+                    fast: [20, 25],
+                    extreme: [30, 35]
+                }
+            },
+            extreme: {
+                duration: [600, 900], // 10-15分钟
+                segments: [8, 12],
+                speeds: {
+                    stop: 0,
+                    slow: [2, 3],
+                    medium: [8, 12],
+                    fast: [18, 22],
+                    extreme: [28, 32]
+                }
+            }
+        };
+
+        // 羞辱文案
+        const taunts = {
             stop: [
                 "停下来哦~ 不许动你的小肉棒♡",
-                "哎呀，就这样忍住吧，废物小睿~",
-                "看你憋得满脸通红，真是可怜的绿帽奴♪",
-                "寸止的滋味如何？你这个变态M男~",
-                "不许碰哦，让你的小鸡巴自己跳动吧♡",
-                "呵呵，想射却不能射，活该呢~",
-                "你的小肉棒在颤抖呢，好可怜的绿帽狗~"
+                "哎呀，就这样忍住吧，真可怜~",
+                "看你憋得满脸通红，好可爱呢♪",
+                "这就是寸止的滋味，好好品尝吧~",
+                "不许碰哦，让它自己跳动吧♡",
+                "呵呵，是不是很想继续？可惜不行呢~",
+                "你的小鸡巴在抽搐呢，忍住哦♡",
+                "就这样看着它流水吧，不许擦~"
             ],
             slow: [
-                "慢~慢~地~撸，像个娘娘腔一样♡",
-                "就这样温柔地玩弄你那可怜的小东西~",
-                "这种缓慢的折磨适合你这种废物♪",
-                "慢慢享受吧，反正你也只配这样~",
-                "像个处女一样害羞地摸着呢，真恶心~"
+                "慢~慢~地~来，不要着急哦♡",
+                "就这样温柔地抚摸自己吧~",
+                "感受每一下的快感，别漏掉哦♪",
+                "这种缓慢的折磨，是不是很棒？",
+                "慢慢享受吧，还有很长时间呢~",
+                "像个处男一样慢慢撸吧♡",
+                "这么慢都快受不了了？真没用呢~"
             ],
             medium: [
-                "稍微快一点了，绿帽贱狗♡",
-                "中等速度，你的小鸡巴受得了吗？",
-                "保持节奏，别像个早泄废物一样~",
-                "这种速度对你来说是不是太快了？♪",
-                "看你这副德行，真是没用的东西~"
+                "稍微快一点了哦，跟上节奏♡",
+                "中等速度，不快不慢刚刚好~",
+                "保持这个节奏，感觉如何？",
+                "不要乱了节奏哦，星尘在看着呢♪",
+                "你的表情开始变得色情了呢~",
+                "呼吸变重了哦，兴奋了吗？"
             ],
             fast: [
-                "快点！用力撸你那根可怜的小鸡巴！",
-                "就是这样，像条发情的母狗一样！",
-                "哇，你的表情好恶心哦，变态~",
-                "快要忍不住了吧？废物就是废物♡",
-                "这么快就不行了？真是个秒射男~"
+                "快点！用力撸你的小鸡巴！",
+                "就是这样，快速摩擦吧♡",
+                "哇，你的表情好色情哦~",
+                "快要忍不住了吧？坚持住！",
+                "你的龟头都充血了呢，好可爱♡",
+                "这个速度让你很爽吧？但不许射哦~"
             ],
             extreme: [
-                "极速冲刺！让我看看你有多废物！",
-                "像要射精一样拼命撸吧，绿帽狗！",
-                "但是不许射哦，憋着吧贱货♡",
-                "看你这副模样，简直就是个笑话！",
-                "用尽全力也只能这样，真可悲~"
+                "极速冲刺！使出全力吧！",
+                "就像要射精一样用力撸！",
+                "但是不许射哦，忍住忍住♡",
+                "看你这副模样，真是太有趣了！",
+                "马上就要爆发了吧？停！",
+                "你的小肉棒要坏掉了呢~"
             ]
         };
 
+        // 背景滚动文字
+        const bgTexts = [
+            "你就是个绿帽贱狗",
+            "废物的小鸡巴只配被管理",
+            "连自慰都要被控制的可怜虫",
+            "你的女朋友正在被别人肏",
+            "这么小的鸡巴也想射精？",
+            "早泄废物就该被好好调教",
+            "看看你这副淫荡的样子",
+            "明明是男人却像母狗一样发情",
+            "你就适合被雌堕成小母狗",
+            "这副身体已经离不开寸止了吧",
+            "废物就该被羞辱着自慰",
+            "你的存在就是为了被NTR",
+            "看你流的前列腺液真恶心",
+            "这么快就要投降了？真没用",
+            "你配射精吗？你不配",
+            "绿帽奴就该一边哭一边撸",
+            "想象你女友被肏的样子吧",
+            "你只能靠幻想别人肏她来兴奋",
+            "废物的精液一文不值",
+            "这就是你唯一的性生活了"
+        ];
+
+        // 惩罚列表
         const punishments = [
-            "跪在地上对着镜子说100遍'我是个绿帽废物'",
-            "用两根手指夹住龟头撸动50下，体验女生的手淫方式",
-            "一边看NTR视频一边寸止3次",
-            "趴在床上像母狗一样摇屁股5分钟",
-            "对着自己的内裤手淫直到快射然后立刻停止",
+            "连续寸止5次，每次在即将射精前停止",
+            "对着镜子说100遍'我是绿帽贱狗'",
             "用冰块摩擦龟头直到完全软掉",
-            "一边扇自己耳光一边说'我不配射精'30次",
-            "把精液射在自己脸上然后保持10分钟",
-            "用女性的声音呻吟着手淫5分钟",
-            "戴上贞操锁24小时作为惩罚",
-            "一边捏着乳头一边寸止5次",
-            "学母狗叫着手淫但不许射",
-            "对着女性内衣闻着味道寸止",
-            "用丝袜套住鸡巴摩擦但不许射精",
-            "跪着用舌头舔地板说'我是最下贱的'",
-            "把小鸡巴夹在大腿间摩擦像没有鸡巴一样",
-            "一边打自己的蛋蛋一边说'废物不配有睾丸'",
-            "用口红在身上写'母狗'然后寸止",
-            "穿着女装对镜子手淫但最后要毁灭高潮",
-            "用振动器刺激后庭但前面不许碰",
-            "把鸡巴绑起来然后看黄片30分钟",
-            "涂上辣椒油手淫1分钟",
-            "憋尿的状态下寸止3次",
-            "用牙刷刷龟头直到快哭出来",
-            "射在马桶里然后跪着看着精液10分钟反省",
-            "用胶带把鸡巴贴在肚子上动弹不得1小时",
-            "学女生夹腿摩擦但不许用手",
-            "射精后继续撸直到痛苦地求饶",
-            "把射出的精液全部吃掉",
-            "下次高潮必须穿着贞操带用后庭达到"
+            "跪在地上自扇耳光50下",
+            "连续1小时不许碰自己的性器",
+            "写500字的自我羞辱作文",
+            "录下自己说'我不配射精'的视频",
+            "用牙膏涂满龟头忍受刺激10分钟",
+            "连续深蹲100个让血液离开下体",
+            "对着女友照片说'请原谅我这个废物'",
+            "把自己的内裤套在头上跪着反省",
+            "用橡皮筋弹龟头30下",
+            "在身上写'早泄废物'并保持一天",
+            "连续看NTR本子但不许勃起",
+            "跪着学狗叫100声",
+            "用夹子夹住乳头忍受30分钟",
+            "吃自己的前列腺液",
+            "把震动器绑在龟头上忍受不射",
+            "一边掐自己大腿一边说羞辱自己的话",
+            "穿女装自慰但不许射",
+            "对着黑屏幕说出自己最羞耻的性幻想",
+            "用手指插自己后面但不许碰前面",
+            "把所有AV删掉并发誓一个月不看",
+            "连续边缘控制到哭出来为止",
+            "跪着给想象中的男友道歉",
+            "一边打自己的蛋蛋一边笑",
+            "大声朗读NTR小说的高潮部分",
+            "模仿女性自慰的动作和声音",
+            "保持勃起状态做100个仰卧起坐",
+            "对着自己最喜欢的角色说对不起"
         ];
 
-        const floatingInsults = [
-            "你就是个废物",
-            "绿帽奴才",
-            "小鸡巴真可怜",
-            "永远射不出来",
-            "母狗不如",
-            "变态贱货",
-            "早泄废物",
-            "下贱的M男",
-            "恶心的变态",
-            "可悲的处男",
-            "没用的东西",
-            "雌堕的贱狗",
-            "令人作呕",
-            "最低等的生物",
-            "连手淫都不会",
-            "活该被绿",
-            "天生的奴隶",
-            "失败者",
-            "社会的耻辱",
-            "存在就是错误"
-        ];
-
+        // 游戏状态
         let gameState = {
-            difficulty: '',
-            currentSpeed: 0,
-            timeLeft: 0,
+            difficulty: null,
+            duration: 0,
             segments: [],
             currentSegment: 0,
+            currentSpeed: 0,
+            timeRemaining: 0,
             intervalId: null,
-            countdownId: null
+            rhythmInterval: null
         };
 
-        function createFloatingTexts() {
-            for(let i = 0; i < 20; i++) {
-                const div = document.createElement('div');
-                div.className = 'floating-text';
-                div.textContent = floatingInsults[i];
-                div.style.top = Math.random() * 100 + '%';
-                div.style.animationDelay = Math.random() * 15 + 's';
-                div.style.fontSize = (Math.random() * 10 + 12) + 'px';
-                document.body.appendChild(div);
-            }
+        // 初始化背景文字
+        function initBackground() {
+            const bgDiv = document.getElementById('scrollingBg');
+            bgDiv.innerHTML = bgTexts.map(text =>
+                `<span style="margin: 0 50px;">${text}</span>`
+            ).join('').repeat(10);
         }
 
+        // 开始游戏
         function startGame(difficulty) {
             gameState.difficulty = difficulty;
-            document.getElementById('difficultySelector').style.display = 'none';
-            document.getElementById('gameArea').style.display = 'block';
+            const config = gameConfig[difficulty];
 
-            createFloatingTexts();
+            // 随机生成游戏参数
+            gameState.duration = randomBetween(config.duration[0], config.duration[1]);
+            gameState.timeRemaining = gameState.duration;
+            const segmentCount = randomBetween(config.segments[0], config.segments[1]);
 
-            // 根据难度设置参数
-            let config = {};
-            switch(difficulty) {
-                case 'easy':
-                    config = {
-                        duration: 180 + Math.random() * 60,
-                        segments: 3 + Math.floor(Math.random() * 2),
-                        speeds: {0: 0, 1: 3, 2: 6, 3: 10, 4: 15}
-                    };
-                    break;
-                case 'medium':
-                    config = {
-                        duration: 240 + Math.random() * 120,
-                        segments: 5 + Math.floor(Math.random() * 3),
-                        speeds: {0: 0, 1: 5, 2: 10, 3: 20, 4: 30}
-                    };
-                    break;
-                case 'hard':
-                    config = {
-                        duration: 360 + Math.random() * 180,
-                        segments: 8 + Math.floor(Math.random() * 4),
-                        speeds: {0: 0, 1: 8, 2: 15, 3: 30, 4: 50}
-                    };
-                    break;
-                case 'impossible':
-                    config = {
-                        duration: 600 + Math.random() * 300,
-                        segments: 15 + Math.floor(Math.random() * 10),
-                        speeds: {0: 0, 1: 10, 2: 25, 3: 50, 4: 80}
-                    };
-                    break;
-            }
+            // 生成段落结构
+            gameState.segments = generateSegments(segmentCount, gameState.duration, config);
 
-            gameState.timeLeft = Math.floor(config.duration);
-            gameState.speeds = config.speeds;
+            // 切换界面
+            document.getElementById('difficultyScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
 
-            // 生成段落
-            gameState.segments = generateSegments(config.segments);
-
-            startSegment();
+            // 开始游戏循环
+            startGameLoop();
         }
 
-        function generateSegments(numSegments) {
-            let segments = [];
-            for(let i = 0; i < numSegments - 1; i++) {
-                // 每段的构成
-                let segment = [];
+        // 生成段落结构
+        function generateSegments(count, totalDuration, config) {
+            const segments = [];
+            const segmentDuration = Math.floor(totalDuration / count);
 
-                // 开始缓慢
-                segment.push({speed: 1, duration: 5 + Math.random() * 5});
-                segment.push({speed: 2, duration: 5 + Math.random() * 10});
+            for (let i = 0; i < count; i++) {
+                const isLast = i === count - 1;
+                const segment = {
+                    duration: segmentDuration,
+                    phases: []
+                };
 
-                // 随机加速
-                if(Math.random() > 0.5) {
-                    segment.push({speed: 3, duration: 3 + Math.random() * 5});
+                if (isLast) {
+                    // 最后一段：射精段
+                    segment.phases = generateFinalSegment(segmentDuration, config);
+                } else {
+                    // 普通段：以寸止结束
+                    segment.phases = generateNormalSegment(segmentDuration, config);
                 }
-
-                // 极限边缘
-                if(Math.random() > 0.7) {
-                    segment.push({speed: 4, duration: 2 + Math.random() * 3});
-                }
-
-                // 寸止
-                segment.push({speed: 0, duration: 5 + Math.random() * 10});
 
                 segments.push(segment);
             }
 
-            // 最后的射精段
-            let finalSegment = [];
-            finalSegment.push({speed: 2, duration: 5});
-            finalSegment.push({speed: 3, duration: 5});
-            finalSegment.push({speed: 4, duration: 5});
-            finalSegment.push({speed: 'finish', duration: 5});
-            segments.push(finalSegment);
-
             return segments;
         }
 
-        function startSegment() {
-            if(gameState.currentSegment >= gameState.segments.length) {
-                victory();
-                return;
+        // 生成普通段落
+        function generateNormalSegment(duration, config) {
+            const phases = [];
+            let remainingTime = duration;
+
+            // 开始：慢速热身
+            phases.push({
+                speed: 'slow',
+                duration: Math.min(10, remainingTime),
+                strokes: randomBetween(...config.speeds.slow)
+            });
+            remainingTime -= 10;
+
+            // 中间：逐渐加速
+            while (remainingTime > 15) {
+                const speedChoice = Math.random();
+                let speed, strokeRange;
+
+                if (speedChoice < 0.3) {
+                    speed = 'slow';
+                    strokeRange = config.speeds.slow;
+                } else if (speedChoice < 0.7) {
+                    speed = 'medium';
+                    strokeRange = config.speeds.medium;
+                } else {
+                    speed = 'fast';
+                    strokeRange = config.speeds.fast;
+                }
+
+                const phaseDuration = randomBetween(5, 15);
+                phases.push({
+                    speed: speed,
+                    duration: Math.min(phaseDuration, remainingTime - 15),
+                    strokes: randomBetween(...strokeRange)
+                });
+                remainingTime -= phaseDuration;
             }
 
-            let segment = gameState.segments[gameState.currentSegment];
-            let phaseIndex = 0;
+            // 结尾：极速后寸止
+            if (remainingTime > 5) {
+                phases.push({
+                    speed: 'extreme',
+                    duration: remainingTime - 5,
+                    strokes: randomBetween(...config.speeds.extreme)
+                });
+            }
 
-            function nextPhase() {
-                if(phaseIndex >= segment.length) {
-                    gameState.currentSegment++;
-                    startSegment();
+            // 寸止
+            phases.push({
+                speed: 'stop',
+                duration: 5,
+                strokes: 0
+            });
+
+            return phases;
+        }
+
+        // 生成最终段落（射精段）
+        function generateFinalSegment(duration, config) {
+            const phases = [];
+            let remainingTime = duration;
+
+            // 逐渐升温
+            const warmupTime = Math.floor(duration * 0.6);
+            let currentTime = 0;
+
+            while (currentTime < warmupTime) {
+                const progress = currentTime / warmupTime;
+                let speed, strokeRange;
+
+                if (progress < 0.3) {
+                    speed = 'medium';
+                    strokeRange = config.speeds.medium;
+                } else if (progress < 0.6) {
+                    speed = 'fast';
+                    strokeRange = config.speeds.fast;
+                } else {
+                    speed = 'extreme';
+                    strokeRange = config.speeds.extreme;
+                }
+
+                const phaseDuration = randomBetween(5, 10);
+                phases.push({
+                    speed: speed,
+                    duration: phaseDuration,
+                    strokes: randomBetween(...strokeRange)
+                });
+                currentTime += phaseDuration;
+            }
+
+            // 最终冲刺
+            phases.push({
+                speed: 'extreme',
+                duration: duration - currentTime,
+                strokes: config.speeds.extreme[1],
+                isFinal: true
+            });
+
+            return phases;
+        }
+
+        // 游戏主循环
+        function startGameLoop() {
+            let currentSegmentIndex = 0;
+            let currentPhaseIndex = 0;
+            let phaseTimeLeft = 0;
+
+            gameState.intervalId = setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimer(gameState.timeRemaining);
+
+                // 检查游戏是否结束
+                if (gameState.timeRemaining <= 0) {
+                    gameComplete();
                     return;
                 }
 
-                let phase = segment[phaseIndex];
-                phaseIndex++;
+                // 检查是否需要切换阶段
+                if (phaseTimeLeft <= 0) {
+                    const segment = gameState.segments[currentSegmentIndex];
+                    const phase = segment.phases[currentPhaseIndex];
 
-                if(phase.speed === 'finish') {
-                    finishPhase();
-                    return;
+                    if (!phase) {
+                        // 切换到下一段
+                        currentSegmentIndex++;
+                        currentPhaseIndex = 0;
+
+                        if (currentSegmentIndex >= gameState.segments.length) {
+                            // 游戏结束
+                            gameComplete();
+                            return;
+                        }
+                    } else {
+                        // 执行当前阶段
+                        executePhase(phase);
+                        phaseTimeLeft = phase.duration;
+                        currentPhaseIndex++;
+                    }
                 }
 
-                updateDisplay(phase.speed);
-                setTimeout(nextPhase, phase.duration * 1000);
-            }
-
-            nextPhase();
-            startTimer();
-        }
-
-        function updateDisplay(speed) {
-            let strokeCount = gameState.speeds[speed];
-            document.getElementById('strokeIndicator').textContent = strokeCount + ' 下';
-
-            // 更新节奏文字
-            let rhythmText = '';
-            if(speed === 0) {
-                rhythmText = '寸止！停止！';
-                document.getElementById('rhythmText').style.animation = 'none';
-            } else {
-                let frequency = strokeCount / 5; // 5秒内的次数
-                document.getElementById('rhythmText').style.animation = `pulse ${1/frequency}s infinite`;
-                rhythmText = 'シコシコ';
-            }
-            document.getElementById('rhythmText').textContent = rhythmText;
-
-            // 更新挑逗文字
-            let category = speed === 0 ? 'stop' :
-                          speed === 1 ? 'slow' :
-                          speed === 2 ? 'medium' :
-                          speed === 3 ? 'fast' : 'extreme';
-
-            let texts = teasingTexts[category];
-            document.getElementById('teasingText').textContent =
-                texts[Math.floor(Math.random() * texts.length)];
-        }
-
-        function startTimer() {
-            gameState.countdownId = setInterval(() => {
-                gameState.timeLeft--;
-                document.getElementById('timeLeft').textContent = gameState.timeLeft;
-
-                if(gameState.timeLeft <= 0) {
-                    clearInterval(gameState.countdownId);
-                    failed();
-                }
+                phaseTimeLeft--;
             }, 1000);
         }
 
-        function finishPhase() {
-            document.getElementById('strokeIndicator').textContent = '射精！';
-            document.getElementById('rhythmText').textContent = '发射！！！';
-            document.getElementById('teasingText').textContent = '恭喜你终于可以射了，废物~';
+        // 执行阶段
+        function executePhase(phase) {
+            const speedText = {
+                stop: '🛑 寸止！停下来！',
+                slow: '🐌 慢速模式',
+                medium: '⚡ 中速模式',
+                fast: '🔥 快速模式',
+                extreme: '💥 极速冲刺！'
+            };
 
-            setTimeout(victory, 5000);
+            document.getElementById('speedIndicator').textContent =
+                speedText[phase.speed] + (phase.strokes ? ` - ${phase.strokes}下/5秒` : '');
+
+            // 更新羞辱文案
+            const tauntArray = taunts[phase.speed] || taunts.medium;
+            const randomTaunt = tauntArray[Math.floor(Math.random() * tauntArray.length)];
+            document.getElementById('tauntMessage').textContent = randomTaunt;
+
+            // 更新节奏显示
+            updateRhythm(phase);
+
+            // 特殊处理最终阶段
+            if (phase.isFinal) {
+                document.getElementById('speedIndicator').style.background =
+                    'linear-gradient(135deg, #ff0000, #ff6b6b)';
+                document.getElementById('tauntMessage').textContent =
+                    '💦 可以射了！尽情释放吧！用力射出来！💦';
+            }
         }
 
-        function victory() {
-            clearInterval(gameState.countdownId);
-            document.getElementById('gameArea').style.display = 'none';
-            document.getElementById('punishmentArea').style.display = 'block';
-            document.getElementById('punishmentText').innerHTML =
-                '<div style="color: #00ff00;">恭喜通关！你的奖励是：</div>' +
-                '<div style="margin-top: 20px; color: #ffd700;">' +
-                '可以尽情射精一次，或者选择继续寸止挑战更高难度~' +
-                '</div>';
-        }
-
-        function surrender() {
-            clearInterval(gameState.countdownId);
-            document.getElementById('gameArea').style.display = 'none';
-            document.getElementById('punishmentArea').style.display = 'block';
-
-            let punishment1 = punishments[Math.floor(Math.random() * punishments.length)];
-            let punishment2 = punishments[Math.floor(Math.random() * punishments.length)];
-
-            document.getElementById('punishmentText').innerHTML =
-                '<div style="color: #ff6b6b;">投降了？真是个没用的废物！</div>' +
-                '<div style="margin-top: 20px;">你的惩罚是：</div>' +
-                '<div style="margin-top: 10px; color: #ffd700;">1. 立即毁灭高潮，射精的瞬间松手</div>' +
-                '<div style="margin-top: 10px; color: #ffd700;">2. ' + punishment1 + '</div>' +
-                '<div style="margin-top: 10px; color: #ffd700;">3. ' + punishment2 + '</div>';
-        }
-
-        function failed() {
-            clearInterval(gameState.countdownId);
-            document.getElementById('gameArea').style.display = 'none';
-            document.getElementById('punishmentArea').style.display = 'block';
-
-            let punishmentList = [];
-            for(let i = 0; i < 5; i++) {
-                punishmentList.push(punishments[Math.floor(Math.random() * punishments.length)]);
+        // 更新节奏显示 - 修改为心跳式跳动
+        function updateRhythm(phase) {
+            if (gameState.rhythmInterval) {
+                clearInterval(gameState.rhythmInterval);
             }
 
-            let punishmentHtml = '<div style="color: #ff0000;">失败！你这个早泄废物！</div>' +
-                                '<div style="margin-top: 20px;">严厉惩罚：</div>';
+            const rhythmText = document.getElementById('rhythmText');
 
-            punishmentList.forEach((p, i) => {
-                punishmentHtml += '<div style="margin-top: 10px; color: #ff69b4;">' +
-                                 (i+1) + '. ' + p + '</div>';
-            });
+            if (phase.strokes > 0) {
+                rhythmText.textContent = 'シコシコ';
+                const interval = 5000 / phase.strokes; // 计算每次跳动的间隔
 
-            document.getElementById('punishmentText').innerHTML = punishmentHtml;
+                gameState.rhythmInterval = setInterval(() => {
+                    // 创建心跳式缩放效果
+                    rhythmText.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        rhythmText.style.transform = 'scale(1)';
+                    }, interval * 0.3); // 跳动持续时间约为间隔的30%
+                }, interval);
+            } else {
+                rhythmText.textContent = '✋ 不许动！';
+                rhythmText.style.transform = 'scale(1)';
+            }
         }
+
+        // 更新计时器 - 修改为倒计时
+        function updateTimer(secondsRemaining) {
+            const minutes = Math.floor(secondsRemaining / 60);
+            const secs = secondsRemaining % 60;
+            document.getElementById('timer').textContent =
+                `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // 时间紧迫时变红
+            if (secondsRemaining <= 30) {
+                document.getElementById('timer').style.color = '#f44336';
+            } else if (secondsRemaining <= 60) {
+                document.getElementById('timer').style.color = '#ff9800';
+            } else {
+                document.getElementById('timer').style.color = '#333';
+            }
+        }
+
+        // 投降
+        function surrender() {
+            clearInterval(gameState.intervalId);
+            clearInterval(gameState.rhythmInterval);
+
+            const punishment = punishments[Math.floor(Math.random() * punishments.length)];
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('resultTitle').textContent = '😢 你投降了...';
+            document.getElementById('resultTitle').style.color = '#ff9800';
+            document.getElementById('punishmentDisplay').innerHTML = `
+                <h3>投降的代价：</h3>
+                <p style="margin: 10px 0;">首先，立刻毁灭你的高潮！用手掌用力拍打龟头直到软掉！</p>
+                <p style="margin: 10px 0; font-weight: bold;">然后执行惩罚：</p>
+                <p style="color: #d32f2f; font-size: 18px;">${punishment}</p>
+            `;
+        }
+
+        // 失败
+        function failed() {
+            clearInterval(gameState.intervalId);
+            clearInterval(gameState.rhythmInterval);
+
+            const punishment1 = punishments[Math.floor(Math.random() * punishments.length)];
+            const punishment2 = punishments[Math.floor(Math.random() * punishments.length)];
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('resultTitle').textContent = '💦 你失败了！早泄废物！';
+            document.getElementById('resultTitle').style.color = '#f44336';
+            document.getElementById('punishmentDisplay').innerHTML = `
+                <h3>失败者的双重惩罚：</h3>
+                <p style="margin: 10px 0; color: #d32f2f;">你这个管不住自己鸡巴的废物！</p>
+                <p style="margin: 10px 0;">惩罚1：</p>
+                <p style="color: #d32f2f; font-size: 18px; margin: 10px 0;">${punishment1}</p>
+                <p style="margin: 10px 0;">惩罚2：</p>
+                <p style="color: #d32f2f; font-size: 18px;">${punishment2}</p>
+            `;
+        }
+
+        // 游戏完成
+        function gameComplete() {
+            clearInterval(gameState.intervalId);
+            clearInterval(gameState.rhythmInterval);
+
+            const reward = punishments[Math.floor(Math.random() * 10)];
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            document.getElementById('resultTitle').textContent = '🎉 恭喜通关！';
+            document.getElementById('resultTitle').style.color = '#4caf50';
+            document.getElementById('punishmentDisplay').innerHTML = `
+                <h3 style="color: #4caf50;">你成功完成了训练！</h3>
+                <p style="margin: 10px 0;">作为奖励，你可以选择：</p>
+                <p style="margin: 10px 0;">1. 好好享受这次射精的余韵</p>
+                <p style="margin: 10px 0;">2. 或者执行一个"奖励任务"：</p>
+                <p style="color: #2196f3; font-size: 18px;">${reward}</p>
+                <p style="margin-top: 15px; font-style: italic;">真是个听话的好孩子呢♡</p>
+            `;
+        }
+
+        // 工具函数
+        function randomBetween(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 初始化
+        initBackground();
     </script>
 </body>
 </html>
